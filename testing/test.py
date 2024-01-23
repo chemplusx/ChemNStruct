@@ -7,6 +7,8 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5ForConditionalGeneration, GenerationConfig
 from peft import PeftConfig, PeftModel
 
+token = "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"
+
 data = pd.read_csv('TestNERDataset.csv', encoding='cp1252')
 
 dataset = []
@@ -32,9 +34,9 @@ for i in range(len(inputs)):
 
 model_name = "chrohi/llama-chat-ft-7b"
 
-generation_config = GenerationConfig.from_pretrained(model_name)
+generation_config = GenerationConfig.from_pretrained(model_name, token=token)
 
-peft_config = PeftConfig.from_pretrained(model_name)
+peft_config = PeftConfig.from_pretrained(model_name, token=token)
 base_model_name = peft_config.base_model_name_or_path
 
 models = {'llama': AutoModelForCausalLM, 't5': T5ForConditionalGeneration, 'mistral': AutoModelForCausalLM}
@@ -42,11 +44,12 @@ models = {'llama': AutoModelForCausalLM, 't5': T5ForConditionalGeneration, 'mist
 model = AutoModelForCausalLM.from_pretrained(
     base_model_name,
     load_in_8bit=True,
-    device_map='auto'
+    device_map='auto',
+    token=token
 )
 
-model = PeftModel.from_pretrained(model, model_name)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = PeftModel.from_pretrained(model, model_name, token=token)
+tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
 
 model.eval()
 model = torch.compile(model)
