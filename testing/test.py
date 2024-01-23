@@ -1,5 +1,6 @@
 import gc
 import torch
+import wandb
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -81,21 +82,23 @@ target_list = list(batch(target_list, n=4))
 instruction_ids = list(batch(instruction_ids, n=4))
 sources = list(batch(sources, n=4))
 
-for source in tqdm(sources):
-    input_ids = tokenizer(source, return_tensors="pt", padding=True)["input_ids"].cuda()
-    with torch.no_grad():
-        # torch.cuda.empty_cache()
-        # gc.collect()
-        generation_output = model.generate(
-            input_ids=input_ids,
-            generation_config=generation_config,
-            return_dict_in_generate=True,
-            eos_token_id=tokenizer.eos_token_id,
-            early_stopping=True,
-        )
-    for s in generation_output.sequences:
-        string_output = tokenizer.decode(s, skip_special_tokens=True)
-        print("Final -> ", string_output)
+with wandb.init(project="Instruction NER") as run:
+    for source in tqdm(sources):
+        input_ids = tokenizer(source, return_tensors="pt", padding=True)["input_ids"].cuda()
+        with torch.no_grad():
+            # torch.cuda.empty_cache()
+            # gc.collect()
+            generation_output = model.generate(
+                input_ids=input_ids,
+                generation_config=generation_config,
+                return_dict_in_generate=True,
+                eos_token_id=tokenizer.eos_token_id,
+                early_stopping=True,
+            )
+        for s in generation_output.sequences:
+            string_output = tokenizer.decode(s, skip_special_tokens=True)
+            extracted_list.append(string_output)
+            print("Final -> ", string_output)
 
 pd.DataFrame({
     'id': np.concatenate(instruction_ids),
