@@ -1,0 +1,104 @@
+import gc
+import torch
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+from transformers import AutoTokenizer, AutoModelForCausalLM, T5ForConditionalGeneration, GenerationConfig
+from peft import PeftConfig, PeftModel
+
+data = pd.read_csv('TestNERDataset.csv', encoding='cp1252')
+
+dataset = []
+i = 0
+
+inputs = data.get('text')
+resp = data.get('chemicals')
+inst = "Identify the chemicals in this text."
+
+for i in range(len(inputs)):
+    dataset.append(
+        {
+            'instruction': inst,
+            'input': inputs[i],
+            'output': resp[i],
+            'source': "### Task: {instruction}\n### Input: {inp}\n### Answer: ".format(instruction=inst.strip(),
+                                                                                       inp=inputs[i].strip()),
+            'raw_entities': 'chemical',
+            'id': f"{i}"
+        }
+    )
+    i += 1
+
+model_name = "chrohi/llama-chat-ft-7b"
+
+generation_config = GenerationConfig.from_pretrained(model_name)
+
+peft_config = PeftConfig.from_pretrained(model_name)
+base_model_name = peft_config.base_model_name_or_path
+
+models = {'llama': AutoModelForCausalLM, 't5': T5ForConditionalGeneration, 'mistral': AutoModelForCausalLM}
+
+model = AutoModelForCausalLM.from_pretrained(
+    base_model_name,
+    load_in_8bit=True,
+    device_map='auto'
+)
+
+model = PeftModel.from_pretrained(model, model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+model.eval()
+model = torch.compile(model)
+
+if torch.cuda.device_count() > 1:
+    model.is_parallelizable = True
+    model.model_parallel = True
+
+extracted_list = []
+target_list = []
+instruction_ids = []
+sources = []
+
+
+def batch(iterable, n=1):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        try:
+            t = iterable[ndx:min(ndx + n, l)]
+        except Exception:
+            print("Error")
+        yield t
+
+
+# exit(0)
+test_dataset = dataset
+for instruction in tqdm(test_dataset):
+    target_list.append(instruction['raw_entities'])
+    instruction_ids.append(instruction['id'])
+    sources.append(instruction['source'])
+
+target_list = list(batch(target_list, n=4))
+instruction_ids = list(batch(instruction_ids, n=4))
+sources = list(batch(sources, n=4))
+
+for source in tqdm(sources):
+    input_ids = tokenizer(source, return_tensors="pt", padding=True)["input_ids"].cuda()
+    with torch.no_grad():
+        # torch.cuda.empty_cache()
+        # gc.collect()
+        generation_output = model.generate(
+            input_ids=input_ids,
+            generation_config=generation_config,
+            return_dict_in_generate=True,
+            eos_token_id=tokenizer.eos_token_id,
+            early_stopping=True,
+        )
+    for s in generation_output.sequences:
+        string_output = tokenizer.decode(s, skip_special_tokens=True)
+        print("Final -> ", string_output)
+
+pd.DataFrame({
+    'id': np.concatenate(instruction_ids),
+    'extracted': extracted_list,
+    'target': np.concatenate(target_list)
+}).to_json("finetuned_llama_chat_7b_testing_result.json")
