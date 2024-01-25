@@ -110,10 +110,6 @@ def train(
         'mistral': {
             'data_collator': DataCollatorForTokenClassification,
             'model': AutoModelForCausalLM
-        },
-        't5': {
-            'data_collator': DataCollatorForSeq2Seq,
-            'model': T5ForConditionalGeneration
         }
     }
 
@@ -197,7 +193,7 @@ if __name__ == "__main__":
     train_dataset, test_dataset = create_train_test_instruct_datasets(
         data_path="data/annotated_nlm.json",
         max_instances=-1,
-        test_size=0.2,
+        test_size=0.02,
         random_seed=42
     )
 

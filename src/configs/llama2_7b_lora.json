@@ -29,6 +29,6 @@
     "only_target_loss": false,
     "model_name": "meta-llama/Llama-2-7b-hf",
     "is_adapter": false,
-    "max_source_tokens_count": 256,
+    "max_source_tokens_count": 2048,
     "max_target_tokens_count": 512
 }
