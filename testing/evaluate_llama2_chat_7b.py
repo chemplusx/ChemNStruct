@@ -6,6 +6,9 @@ import pandas as pd
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5ForConditionalGeneration, GenerationConfig
 from peft import PeftConfig, PeftModel
+from huggingface_hub.hf_api import HfFolder
+
+HfFolder.save_token('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')
 
 token = "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"
 
@@ -32,7 +35,8 @@ for i in range(len(inputs)):
     )
     i += 1
 
-model_name = "chrohi/llama-chat-ft-7b"
+# model_name = "chrohi/llama-chat-ft-7b"
+model_name = "meta-llama/Llama-2-7b-chat-hf"
 
 generation_config = GenerationConfig.from_pretrained(model_name, token=token)
 
@@ -81,9 +85,9 @@ for instruction in tqdm(test_dataset):
     instruction_ids.append(instruction['id'])
     sources.append(instruction['source'])
 
-target_list = list(batch(target_list, n=4))
-instruction_ids = list(batch(instruction_ids, n=4))
-sources = list(batch(sources, n=4))
+target_list = list(batch(target_list, n=1))
+instruction_ids = list(batch(instruction_ids, n=1))
+sources = list(batch(sources, n=1))
 
 with wandb.init(project="Instruction NER") as run:
     for source in tqdm(sources):
