@@ -17,7 +17,11 @@ from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 from src.utils.train_utils import set_random_seed, fix_tokenizer, fix_model
 from src.utils.metric import calculate_metrics, extract_classes
 from src.schemas.ChemStruct import ChemStruct, InstructDataset
+from huggingface_hub.hf_api import HfFolder
 
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
+
+HfFolder.save_token('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')
 
 # https://github.com/huggingface/peft/issues/96
 class SavePeftModelCallback(TrainerCallback):
