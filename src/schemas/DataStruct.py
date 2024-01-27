@@ -3,10 +3,10 @@ from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from typing import Union
 
-from src.schemas.ChemStruct import ChemStruct
-from src.schemas.misc import Record
-from src.utils.train_utils import create_output_from_entities, MODEL_INPUT_TEMPLATE
-from src.utils.utils import load_lines, parse_jsonl
+from schemas.ChemStruct import ChemStruct
+from schemas.misc import Record
+from utils.train_utils import create_output_from_entities, MODEL_INPUT_TEMPLATE
+from utils.utils import load_lines, parse_jsonl
 
 ENTITY_TYPES = ['chemical']
 ENTITY_DEFENITIONS = [

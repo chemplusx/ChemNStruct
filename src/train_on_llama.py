@@ -8,15 +8,14 @@ import wandb
 from peft import (LoraConfig, PeftConfig, PeftModel, get_peft_model,
                   prepare_model_for_kbit_training)
 from transformers import (AutoModelForCausalLM, AutoTokenizer,
-                          DataCollatorForSeq2Seq,
                           DataCollatorForTokenClassification, EvalPrediction,
-                          T5ForConditionalGeneration, Trainer, TrainerCallback,
+                        Trainer, TrainerCallback,
                           TrainerControl, TrainerState, TrainingArguments)
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 
-from src.utils.train_utils import set_random_seed, fix_tokenizer, fix_model
-from src.utils.metric import calculate_metrics, extract_classes
-from src.schemas.ChemStruct import ChemStruct, InstructDataset
+from utils.train_utils import set_random_seed, fix_tokenizer, fix_model
+from utils.metric import calculate_metrics, extract_classes
+from schemas.ChemStruct import ChemStruct, InstructDataset
 from huggingface_hub.hf_api import HfFolder
 
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
@@ -182,18 +181,18 @@ def train(
         if 'llama2' in config_file:
             model_type = 'llama2'
         if push_to_hub:
-            model.push_to_hub(f"chrohi/{model_type}-{hf_name_postfix}", use_auth_token=True)
-            tokenizer.push_to_hub(f"chrohi/{model_type}-{hf_name_postfix}", use_auth_token=True)
+            model.push_to_hub(f"ChemPlusX/{model_type}-{hf_name_postfix}", use_auth_token=True)
+            tokenizer.push_to_hub(f"ChemPlusX/{model_type}-{hf_name_postfix}", use_auth_token=True)
 
 
 if __name__ == "__main__":
 
-    from src.schemas.DataStruct import create_train_test_instruct_datasets, ENTITY_TYPES
+    from schemas.DataStruct import create_train_test_instruct_datasets, ENTITY_TYPES
 
     train_dataset, test_dataset = create_train_test_instruct_datasets(
         data_path="data/annotated_nlm.json",
         max_instances=-1,
-        test_size=0.02,
+        test_size=0.2,
         random_seed=42
     )
 

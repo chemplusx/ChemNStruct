@@ -2,7 +2,7 @@ import re
 from collections import defaultdict
 import pandas as pd
 
-from src.utils.train_utils import MODEL_INPUT_TEMPLATE
+from utils.train_utils import MODEL_INPUT_TEMPLATE
 
 
 def split_entities_by_words(dct: dict[str, str]) -> dict[str, str]:
