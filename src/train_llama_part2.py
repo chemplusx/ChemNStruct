@@ -27,7 +27,7 @@ from conversation import Conversation, get_conv_template
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:256"
 
 local_rank = None
-HfFolder.save_token('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')
+HfFolder.save_token('<token>')
 
 IGNORE_TOKEN_ID = LabelSmoother.ignore_index
 
