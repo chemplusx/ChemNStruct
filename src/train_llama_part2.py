@@ -333,9 +333,9 @@ def make_supervised_data_module(
 
 
 tt = {
-"run_name": "universalner",
+"run_name": "ChemNStruct",
 "bf16": "True",
-"output_dir": "/mnt/d/workspace/universal-ner/src/train/saved_models/universalner",
+"output_dir": "./saved_models/ChemNStruct",
 "dataloader_num_workers": 8,
 "num_train_epochs": 1,
 "per_device_train_batch_size": 8,
@@ -363,7 +363,7 @@ ff = {
 "model_name_or_path": "meta-llama/Llama-2-7b-hf",
 "model_max_length": 1024,
 "lazy_preprocess": "Tr",
-"data_path": "/mnt/d/workspace/universal-ner/src/train/output_ner_convo_12.json",
+"data_path": "./output_ner_convo_12.json",
 }
 
 def train():
