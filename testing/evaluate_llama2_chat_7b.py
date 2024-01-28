@@ -8,9 +8,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, T5ForConditionalGe
 from peft import PeftConfig, PeftModel
 from huggingface_hub.hf_api import HfFolder
 
-HfFolder.save_token('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')
+HfFolder.save_token('<token>')
 
-token = "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"
+token = "<token>"
 
 data = pd.read_csv('TestNERDataset.csv', encoding='cp1252')
 
